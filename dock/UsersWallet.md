@@ -56,7 +56,7 @@ Response Body Error :
 
 ```json
 {
-    "mwssage": "Unauthorized"
+    "message": "Unauthorized"
 }
 ```
 
