@@ -7,6 +7,7 @@ import { ResponseError } from '../error/ResponseError.js'
 import { changePasswordValidate } from '../validation/UsersValidation.js'
 
 const privateKey = fs.readFileSync(process.env.PRIVATE_KEY_PATH, 'utf-8')
+const publicKey = fs.readFileSync(process.env.PUBLIC_KEY_PATH, 'utf-8')
 
 export const registerSellersService = async (request) => {
     const result = await registerSellersValidate.validateAsync(request)
@@ -54,24 +55,14 @@ export const loginSellersService = async (request) => {
         throw new ResponseError(400, 'Email or password wrong')
     }
 
-    const sellerId = seller.id
-    const sellerName = seller.name
-    const role = seller.role
-    const accessToken = jwt.sign({sellerId, sellerName, role}, privateKey, {
+    const {id, name, role} = seller
+    const accessToken = jwt.sign({id, name, role}, privateKey, {
         expiresIn: '60s',
         algorithm: 'RS256'
     })
-    const refreshToken = jwt.sign({sellerId, sellerName, role}, privateKey, {
+    const refreshToken = jwt.sign({id, name, role}, privateKey, {
         expiresIn: '12h',
         algorithm: 'RS256'
-    })
-
-    await Sellers.update({
-        refresh_token: refreshToken
-    }, {
-        where: {
-            id: sellerId
-        }
     })
 
     return {accessToken, refreshToken}
@@ -148,29 +139,16 @@ export const changePasswordService = async (request, sellerId) => {
     })
 }
 
-export const logoutSellersService = async (request) => {
-    const token = request
-
+export const logoutSellersService = async (token) => {
     if (!token){
         throw new ResponseError(401, 'Unauthorized')
     }
 
-    const seller = await Sellers.findOne({
-        where: {
-            refresh_token: token
+    jwt.verify(token, publicKey, (err, decoded) => {
+        if (err){
+            throw new ResponseError(401, 'Token error')
         }
-    })
-
-    if(!seller){
-        throw new ResponseError(401, 'Unauthorized')
-    }
-
-    await Sellers.update({
-        refresh_token: null
-    }, {
-        where: {
-            id: seller.id
-        }
+        return
     })
 
 }

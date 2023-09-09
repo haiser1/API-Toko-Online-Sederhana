@@ -16,7 +16,8 @@ const Users = db.define('users', {
         validate: {
             notEmpty: true,
             isEmail: true
-        }
+        },
+        unique: true
     },
     password: {
         type: DataTypes.STRING,
@@ -39,10 +40,6 @@ const Users = db.define('users', {
     role: {
         type: DataTypes.STRING(10),
         defaultValue: 'user'
-    },
-    refresh_token: {
-        type: DataTypes.TEXT,
-        allowNull: true
     },
     otp_code: {
         type: DataTypes.STRING(10),

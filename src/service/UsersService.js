@@ -12,6 +12,7 @@ import fs from 'fs'
 
 
 const privateKey = fs.readFileSync(process.env.PRIVATE_KEY_PATH, 'utf-8')
+const publicKey = fs.readFileSync(process.env.PUBLIC_KEY_PATH, 'utf-8')
 
 export const registerUsersService = async (request) => {
     const result = await registerUsersValidate.validateAsync(request)
@@ -58,24 +59,14 @@ export const loginUsersService = async (request) => {
     }
 
 
-    const userId = user.id
-    const userName = user.name
-    const { role } = user
-    const accessToken = jwt.sign({userId, userName, role}, privateKey, {
+    const {id, name, role} = user
+    const accessToken = jwt.sign({id, name, role}, privateKey, {
         expiresIn: '60s',
         algorithm: 'RS256'
     })
-    const refreshToken = jwt.sign({userId, userName, role}, privateKey, {
-        expiresIn: '12h',
+    const refreshToken = jwt.sign({id, name, role}, privateKey, {
+        expiresIn: '1h',
         algorithm: 'RS256'
-    })
-
-    await Users.update({
-        refresh_token: refreshToken
-    }, {
-        where: {
-            id: userId
-        }
     })
 
     return {accessToken, refreshToken}
@@ -154,29 +145,16 @@ export const changePasswordService = async (request, userId) => {
     })
 }
 
-export const logoutUsersService = async (request) => {
-    const token = request
-
+export const logoutUsersService = async (token) => {
     if (!token){
         throw new ResponseError(401, 'Unauthorized')
     }
 
-    const user = await Users.findOne({
-        where: {
-            refresh_token: token
+    jwt.verify(token, publicKey, (err, decoded) => {
+        if (err){
+            throw new ResponseError(401, 'Token error')
         }
-    })
-
-    if (!user){
-    throw new ResponseError(401, 'Unauthorized')
-    }
-
-    await Users.update({
-        refresh_token: null
-    }, {
-        where: {
-            id: user.id
-        }
+        return
     })
 }
 

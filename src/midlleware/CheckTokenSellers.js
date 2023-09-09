@@ -15,8 +15,8 @@ export const checkTokenSellers = (req, res, next) => {
     jwt.verify(token, publicKey, {algorithms: ['RS256']}, (err, decoded) => {
         if (err) return res.status(401).json({message: 'Token error'})
 
-        req.sellerId = decoded.sellerId
-        req.sellerName = decoded.sellerName
+        req.sellerId = decoded.id
+        req.sellerName = decoded.name
         req.role = decoded.role
 
         if (req.role !== 'seller') return res.status(403).json({message: 'Access denied'})

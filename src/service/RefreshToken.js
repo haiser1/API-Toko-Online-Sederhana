@@ -7,20 +7,10 @@ import fs from 'fs'
 const privateKey = fs.readFileSync(process.env.PRIVATE_KEY_PATH, 'utf-8')
 const publicKey = fs.readFileSync(process.env.PUBLIC_KEY_PATH, 'utf-8')
 
-export const refreshTokenUsers = async (request) => {
-    const token = request
+export const refreshTokenUsers = async (token) => {
+    
 
     if (!token){
-        throw new ResponseError(401, 'Unauthorized')
-    }
-
-    const user = await Users.findOne({
-        where: {
-            refresh_token: token
-        }
-    })
-
-    if (!user){
         throw new ResponseError(401, 'Unauthorized')
     }
 
@@ -31,10 +21,8 @@ export const refreshTokenUsers = async (request) => {
                 return;
             }
 
-            const userId = decoded.userId
-            const userName = decoded.userName
-            const role = decoded.role
-            const accessToken = jwt.sign({userId, userName, role}, privateKey, {
+            const {id, name, role} = decoded
+            const accessToken = jwt.sign({id, name, role}, privateKey, {
                 expiresIn: '60s',
                 algorithm: 'RS256'
             })
@@ -50,16 +38,6 @@ export const refreshTokenSellers = async (request) => {
         throw new ResponseError(401, 'Unauthorized')
     }
 
-    const seller = await Sellers.findOne({
-        where: {
-            refresh_token: token
-        }
-    })
-
-    if (!seller){
-        throw new ResponseError(401, 'Unauthorized')
-    }
-
     return new Promise((resolve, reject) => {
         jwt.verify(token, publicKey, {algorithms: ['RS256']}, (err, decoded) => {
             if (err){
@@ -67,10 +45,8 @@ export const refreshTokenSellers = async (request) => {
                 return
             }
 
-            const sellerId = decoded.sellerId
-            const sellerName = decoded.name
-            const role = decoded.role
-            const accessToken = jwt.sign({sellerId, sellerName, role}, privateKey, {
+            const {id, name, role} = decoded
+            const accessToken = jwt.sign({id, name, role}, privateKey, {
                 expiresIn: '60s',
                 algorithm: 'RS256'
             })
