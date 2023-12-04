@@ -1,13 +1,13 @@
 import Sellers from '../models/SellersModels.js'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import fs from 'fs'
+import fs from 'fs/promises'
 import { loginSellersValidate, registerSellersValidate, updateSellersValidate } from '../validation/SellersValidation.js'
 import { ResponseError } from '../error/ResponseError.js'
 import { changePasswordValidate } from '../validation/UsersValidation.js'
 
-const privateKey = fs.readFileSync(process.env.PRIVATE_KEY_PATH, 'utf-8')
-const publicKey = fs.readFileSync(process.env.PUBLIC_KEY_PATH, 'utf-8')
+const privateKey = await fs.readFile(process.env.PRIVATE_KEY_PATH, 'utf-8')
+const publicKey = await fs.readFile(process.env.PUBLIC_KEY_PATH, 'utf-8')
 
 export const registerSellersService = async (request) => {
     const result = await registerSellersValidate.validateAsync(request)

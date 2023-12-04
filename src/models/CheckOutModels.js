@@ -16,6 +16,11 @@ const CheckOut = db.define('check_out', {
         type: DataTypes.INTEGER,
         allowNull: false
     },
+    total_price: {
+        type: DataTypes.STRING(20),
+        defaultValue: '0',
+        allowNull: false,
+    },
     total_paid: {
         type: DataTypes.STRING(20),
         allowNull: false,

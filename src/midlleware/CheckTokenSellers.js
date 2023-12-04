@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
-import fs from 'fs'
+import fs from 'fs/promises'
 
-const publicKey = fs.readFileSync(process.env.PUBLIC_KEY_PATH, 'utf-8')
+const publicKey = await fs.readFile(process.env.PUBLIC_KEY_PATH, 'utf-8')
 
 export const checkTokenSellers = (req, res, next) => {
     const authHeader = req.headers['authorization']

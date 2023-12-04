@@ -8,11 +8,11 @@ import {
 } from "../validation/UsersValidation.js"
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
-import fs from 'fs'
+import fs from 'fs/promises'
 
 
-const privateKey = fs.readFileSync(process.env.PRIVATE_KEY_PATH, 'utf-8')
-const publicKey = fs.readFileSync(process.env.PUBLIC_KEY_PATH, 'utf-8')
+const privateKey = await fs.readFile(process.env.PRIVATE_KEY_PATH, 'utf-8')
+const publicKey = await fs.readFile(process.env.PUBLIC_KEY_PATH, 'utf-8')
 
 export const registerUsersService = async (request) => {
     const result = await registerUsersValidate.validateAsync(request)
